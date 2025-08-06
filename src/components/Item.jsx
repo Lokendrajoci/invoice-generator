@@ -1,8 +1,7 @@
 import { useContext, useEffect } from "react";
-import React from "react";
 import CurrencyImg from "/src/images/currency.svg";
 import { RiDeleteBinLine } from "react-icons/ri";
-import { counterContext } from "/src/context/Context";
+import { counterContext } from "/src/context/context";
 import PropTypes from "prop-types";
 export default function Item({
   items,
@@ -21,9 +20,30 @@ export default function Item({
 
   const handleChange = (e, i) => {
     const updatedItems = [...items];
-    const { name, value } = e.target;
-    updatedItems[i] = { ...updatedItems[i], [name]: value };
-    properties;
+    const { name, value: inputValue } = e.target;
+    updatedItems[i] = { ...updatedItems[i], [name]: inputValue };
+
+    // Validate item fields
+    if (name === "name" && (!inputValue || inputValue.trim() === "")) {
+      value.validateField(`item_name_${i}`, inputValue, "required");
+    } else if (
+      name === "quantity" &&
+      (isNaN(inputValue) || parseFloat(inputValue) <= 0)
+    ) {
+      value.validateField(`item_quantity_${i}`, inputValue, "number");
+    } else if (
+      name === "price" &&
+      (isNaN(inputValue) || parseFloat(inputValue) < 0)
+    ) {
+      value.validateField(`item_price_${i}`, inputValue, "number");
+    } else {
+      // Clear error if field is valid
+      const fieldKey = `item_${name}_${i}`;
+      const newErrors = { ...value.errors };
+      delete newErrors[fieldKey];
+      value.setErrors(newErrors);
+    }
+
     setItems(updatedItems);
   };
 
@@ -39,7 +59,7 @@ export default function Item({
 
     const discountPercent = Number(value.discount) / 100;
     setDamout(discountPercent * sum);
-  }, [sum, value.tax, value.discount]);
+  }, [sum, value.tax, value.discount, setTamout, setDamout]);
 
   return (
     <>
@@ -130,7 +150,7 @@ export default function Item({
             <label htmlFor="" className="text-base font-semibold">
               Subtotal:
             </label>
-            <p>&#x930;&#x941; {sum}.00</p>
+            <p>&#x930;&#x941; {sum.toFixed(2)}</p>
           </div>
 
           <div className="flex justify-between mx-5 my-2">
@@ -138,7 +158,7 @@ export default function Item({
               Discount:
             </label>
             <p>
-              ( {value.discount}%) &#x930;&#x941; {DAmout}
+              ( {value.discount}%) &#x930;&#x941; {DAmout.toFixed(2)}
             </p>
           </div>
 
@@ -147,14 +167,14 @@ export default function Item({
               Tax:
             </label>
             <p>
-              ( {value.tax}%) &#x930;&#x941; {tAmout}
+              ( {value.tax}%) &#x930;&#x941; {tAmout.toFixed(2)}
             </p>
           </div>
           <hr className="border-t-2 border-hrColor mx-5" />
 
           <div className="flex justify-between mx-5 my-2 text-base font-semibold">
             <label htmlFor="">Total:</label>
-            <p>&#x930;&#x941; {sum + tAmout - DAmout}</p>
+            <p>&#x930;&#x941; {(sum + tAmout - DAmout).toFixed(2)}</p>
           </div>
         </div>
       </div>
@@ -187,4 +207,9 @@ Item.propTypes = {
     })
   ).isRequired,
   setItems: PropTypes.func.isRequired,
+  tAmout: PropTypes.number.isRequired,
+  setTamout: PropTypes.func.isRequired,
+  DAmout: PropTypes.number.isRequired,
+  setDamout: PropTypes.func.isRequired,
+  sum: PropTypes.number.isRequired,
 };

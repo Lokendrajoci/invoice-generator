@@ -4,18 +4,9 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import BillingForm from "./components/BillingForm";
 import Item from "./components/Item";
-import { counterContext } from "/src/context/Context";
+import { CounterProvider } from "/src/context/Context";
 
 function App() {
-  const [tax, setTax] = useState(0);
-  const [discount, setDiscount] = useState(0);
-  const [invoice, setInvoice] = useState(1);
-  const [Tinvoice, setTinvoice] = useState("");
-  const [Temail, setTemail] = useState("");
-  const [Tadress, setTadress] = useState("");
-  const [Finvoice, setFinvoice] = useState("");
-  const [Femail, setFemail] = useState("");
-  const [Fadress, setFadress] = useState("");
   const [tAmout, setTamout] = useState(0);
   const [DAmout, setDamout] = useState(0);
   const currentDate = new Date();
@@ -28,28 +19,7 @@ function App() {
 
   return (
     <>
-      <counterContext.Provider
-        value={{
-          tax,
-          setTax,
-          discount,
-          setDiscount,
-          invoice,
-          setInvoice,
-          Tinvoice,
-          setTinvoice,
-          Temail,
-          setTemail,
-          Tadress,
-          setTadress,
-          Finvoice,
-          setFinvoice,
-          Femail,
-          setFemail,
-          Fadress,
-          setFadress,
-        }}
-      >
+      <CounterProvider>
         <div className="w-screen bg-customTomato flex justify-center gap-6">
           <div className="w-7/12 bg-whiteColor mt-8 rounded-lg">
             <Navbar formattedDate={formattedDate} />
@@ -66,15 +36,6 @@ function App() {
           </div>
           <div className="w-64 h-72 mt-8">
             <Sidebar
-              tax={tax}
-              discount={discount}
-              invoice={invoice}
-              Tinvoice={Tinvoice}
-              Temail={Temail}
-              Tadress={Tadress}
-              Finvoice={Finvoice}
-              Femail={Femail}
-              Fadress={Fadress}
               items={items}
               dateOfIssue={formattedDate}
               tAmout={tAmout}
@@ -83,7 +44,7 @@ function App() {
             />
           </div>
         </div>
-      </counterContext.Provider>
+      </CounterProvider>
     </>
   );
 }

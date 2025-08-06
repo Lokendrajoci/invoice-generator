@@ -1,16 +1,24 @@
-import { useContext } from "react";
-import React, { useState } from "react";
-import { counterContext } from "/src/context/Context";
+import { useContext, useState } from "react";
+import { counterContext } from "/src/context/context";
+import { VALIDATION_TYPES } from "/src/context/types";
+import PropTypes from "prop-types";
 
-export default function Navbar({formattedDate}) {
+export default function Navbar({ formattedDate }) {
   const value = useContext(counterContext);
-  const [quantity, setQuantity] = useState(1); 
-
-  
+  const [quantity, setQuantity] = useState(1);
+  const [dueDate, setDueDate] = useState("");
 
   const handleQuantityChange = (e) => {
-    setQuantity(e.target.value);
-    value.setInvoice(e.target.value);
+    const inputValue = e.target.value;
+    setQuantity(inputValue);
+    value.setInvoice(inputValue);
+    value.validateField("invoice", inputValue, VALIDATION_TYPES.NUMBER);
+  };
+
+  const handleDueDateChange = (e) => {
+    const inputValue = e.target.value;
+    setDueDate(inputValue);
+    value.validateField("dueDate", inputValue, VALIDATION_TYPES.PAST_DATE);
   };
 
   return (
@@ -32,10 +40,21 @@ export default function Navbar({formattedDate}) {
                   type="date"
                   id="date"
                   name="date"
-                  className="bg-semiBlack p-2 font-normal text-sm rounded-md"
+                  value={dueDate}
+                  className={`bg-semiBlack p-2 font-normal text-sm rounded-md border ${
+                    value.errors.dueDate
+                      ? "border-red-500 focus:border-red-600"
+                      : "border-gray-300 focus:border-pink-800"
+                  }`}
+                  onChange={handleDueDateChange}
                 />
               </span>
             </p>
+            {value.errors.dueDate && (
+              <p className="text-red-500 text-xs mt-1">
+                {value.errors.dueDate}
+              </p>
+            )}
           </div>
         </div>
         <div>
@@ -46,15 +65,26 @@ export default function Navbar({formattedDate}) {
               id="quantity"
               name="quantity"
               min="1"
-              value={quantity} 
+              value={quantity}
               step="1"
-              onChange={handleQuantityChange} 
-              className="ml-2 p-2 rounded-md h-10 w-20 bg-semiBlack focus:border-semiBlue focus:outline-none focus:border-4 focus:rounded-md focus:delay-300"
+              onChange={handleQuantityChange}
+              className={`ml-2 p-2 rounded-md h-10 w-20 bg-semiBlack focus:outline-none focus:border-4 focus:rounded-md focus:delay-300 ${
+                value.errors.invoice
+                  ? "border-red-500 focus:border-red-600"
+                  : "border-gray-300 focus:border-semiBlue"
+              }`}
             />
           </p>
+          {value.errors.invoice && (
+            <p className="text-red-500 text-xs mt-1">{value.errors.invoice}</p>
+          )}
         </div>
       </div>
       <hr className="border-t-2 border-hrColor w-11/12 ml-8" />
     </>
   );
 }
+
+Navbar.propTypes = {
+  formattedDate: PropTypes.string.isRequired,
+};
